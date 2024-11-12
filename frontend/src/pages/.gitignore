@@ -1,0 +1,21 @@
+# Node.js
+node_modules/
+
+# Logs
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# dotenv environment variables
+.env
+
+# Build directory
+/build
+/dist
+
+# IDE/Editor specific files
+.vscode/
+.idea/
+
+# MacOS specific files
+.DS_Store
