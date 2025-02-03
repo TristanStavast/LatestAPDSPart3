@@ -39,28 +39,28 @@ let confirmedPaymentsCount = 0
 let totalConfirmedAmount = 0
 
 // User Registration Route
-app.post('/api/register', async (req, res) => {
-    const { fullName, idNumber, accountNumber, password } = req.body;
+// app.post('/api/register', async (req, res) => {
+//     const { fullName, idNumber, accountNumber, password } = req.body;
 
-    if (!fullName || !idNumber || !accountNumber || !password) {
-        return res.status(400).json({ message: 'All fields are required.' });
-    }
+//     if (!fullName || !idNumber || !accountNumber || !password) {
+//         return res.status(400).json({ message: 'All fields are required.' });
+//     }
 
-    try {
-        // Hash the password with bcrypt
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
+//     try {
+//         // Hash the password with bcrypt
+//         const saltRounds = 10;
+//         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // Store the hashed password (replace with a real DB call)
-        const newUser = { fullName, idNumber, accountNumber, password: hashedPassword };
-        users.push(newUser);
+//         // Store the hashed password (replace with a real DB call)
+//         const newUser = { fullName, idNumber, accountNumber, password: hashedPassword };
+//         users.push(newUser);
 
-        res.status(201).json({ message: 'Registration successful' });
-    } catch (error) {
-        console.error('Error hashing password:', error);
-        res.status(500).json({ message: 'Server error. Please try again.' });
-    }
-});
+//         res.status(201).json({ message: 'Registration successful' });
+//     } catch (error) {
+//         console.error('Error hashing password:', error);
+//         res.status(500).json({ message: 'Server error. Please try again.' });
+//     }
+// });
 
 // User Login Route
 app.post('/api/login', bruteForce.prevent, async (req, res) => {
