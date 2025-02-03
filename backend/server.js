@@ -6,9 +6,19 @@ const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
 const ExpressBrute = require('express-brute');
 const store = new ExpressBrute.MemoryStore()
+// const https = require('https')
+// const fs = require('fs')
+// import app from "./app.mjs";
 
 const app = express();
 const PORT = 5000;
+
+// const server = https.createServer({
+//     key: fs.readFileSync('keys/privatekey.pem'),
+//     cert: fs.readFileSync('keys/certificate.pem')
+// }, app)
+
+// server.listen(PORT);
 
 app.use(bodyParser.json());
 
