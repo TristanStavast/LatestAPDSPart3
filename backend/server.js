@@ -99,7 +99,7 @@ app.post('/api/payments', (req, res) => {
     const { name, description, amount } = req.body;
 
     if (!name || !description || !amount) {
-        return res.status(400).json({ message: 'All fields are required!' });
+        return res.status(400).json({ message: 'All fields are required! ' });
     }
 
     const newPayment = { id: Date.now(), name, description, amount: Number(amount) };

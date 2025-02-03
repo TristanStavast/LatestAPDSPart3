@@ -20,6 +20,8 @@ const loginUser = async (requestAnimationFrame, res) => {
             maxAge: 3 * 24 * 60 * 60 * 1000,
             sameSite: 'Lax'
         })
+
+        res.status(200).json({accountNumber})
     }
     catch(error)
     {
@@ -27,6 +29,19 @@ const loginUser = async (requestAnimationFrame, res) => {
     }
 }
 
+const logoutUser = async (req, res) => {
+    res.cookie('token', '', {
+        httpOnly: true,
+        secure: process.env.MODE_ENV === 'production',
+        expires: new Date(0)
+    })
+
+    res.status(200).json({message: 'Logged out right now brah'})
+    console.log("are you using this????")
+}
+
+
 module.exports = {
-    loginUser
+    loginUser,
+    logoutUser
 }
