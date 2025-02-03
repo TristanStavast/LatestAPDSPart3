@@ -25,7 +25,7 @@ function LoginPage() {
             navigate('/home');  // Redirect to Home Page after login
         } catch (error) {
             console.error("Login failed!", error);
-            setError("Login failed! Please check your credentials and try again.");
+            setError("Login failed! Please check your credentials and try again at a later date.");
         } finally {
             setLoading(false);
         }
