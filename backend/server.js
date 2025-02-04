@@ -1,27 +1,30 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
-const users = require('./mockDatabase')
-const helmet = require('helmet')
-const rateLimit = require('express-rate-limit')
+const users = require('./mockDatabase');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const ExpressBrute = require('express-brute');
-const store = new ExpressBrute.MemoryStore()
+const csurf = require('csurf');
+const cookieParser = require('cookie-parser');
 
+const store = new ExpressBrute.MemoryStore();
 const app = express();
 const PORT = 5000;
 
 app.use(bodyParser.json());
-
-app.use(helmet())
+app.use(cookieParser());
+app.use(helmet());
+app.use(csurf({ cookie: true }));
 
 const loginLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
     max: 5,
     message: 'Too many login attempts from this IP, please try again later.',
     headers: true
-})
+});
 
-app.use('/api/login', loginLimiter)
+app.use('/api/login', loginLimiter);
 
 const bruteForce = new ExpressBrute(store, {
     freeRetries: 3,
@@ -30,7 +33,14 @@ const bruteForce = new ExpressBrute(store, {
     failCallback: function(req, res, next) {
         res.status(429).send('Too many failed login attempts, please try again later')
     }
-})
+});
+
+app.use(csurf({ cookie: true}));
+
+app.use((req, res, next) => {
+    res.cookie('XSRF-TOKEN', req.csrfToken());
+    next();
+});
 
 app.use(bruteForce.prevent)
 
@@ -143,9 +153,11 @@ app.post('/api/payments/confirm/:id', (req, res) => {
 
 app.get('/api/payments', (req, res) => {
     res.status(200).json({payments})
-})
+});
 
-
+app.get('/api/csrf-token', (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+});
 
 // Start the server
 app.listen(PORT, () => {

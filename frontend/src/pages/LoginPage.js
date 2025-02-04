@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/Auth.css';
 import { Link } from 'react-router-dom';
 
-function LoginPage() {
+function LoginPage({ csrfToken }) {
     const navigate = useNavigate();
     const [credentials, setCredentials] = useState({ accountNumber: '', password: '' });
     const [loading, setLoading] = useState(false);
@@ -20,7 +20,11 @@ function LoginPage() {
         setError(null);
 
         try {
-            const response = await axios.post('/api/login', credentials);
+            const response = await axios.post('/api/login', credentials, {
+                headers: { 'X-CSRF-TOKEN': csrfToken },
+                withCredentials: true
+            });
+
             localStorage.setItem('token', response.data.token);
             navigate('/home');  // Redirect to Home Page after login
         } catch (error) {
