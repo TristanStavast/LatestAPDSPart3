@@ -102,14 +102,29 @@ function HomePage() {
     };
 
     // Logout method
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        navigate('/login');
-
-        axios.get('/api/csrf-token').then(response => {
-            axios.defaults.headers.common['X-CSRF-Token'] = response.data.csrfToken
-        })
+    const handleLogout = async () => {
+        try {
+            // Send logout request to backend
+            await axios.post('/api/logout', {}, { withCredentials: true });
+    
+            // Clear token from local storage
+            localStorage.removeItem('token');
+    
+            // Fetch a new CSRF token after logout
+            const csrfResponse = await axios.get('/api/csrf-token', { withCredentials: true });
+            const newCsrfToken = csrfResponse.data.csrfToken;
+    
+            // Store the new CSRF token
+            localStorage.setItem('csrfToken', newCsrfToken);
+            axios.defaults.headers.common['X-CSRF-Token'] = newCsrfToken;
+    
+            // Redirect to login
+            navigate('/login');
+        } catch (error) {
+            console.error("Logout error:", error);
+        }
     };
+    
 
     return (
         <div className="home-container">

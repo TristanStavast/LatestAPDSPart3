@@ -14,5 +14,6 @@ const bruteForce = new ExpressBrute(store, {
 const router = express.Router();
 
 router.post('/login', bruteForce.prevent, loginUser)
+router.post('/loginout', loginUser)
 
 module.exports = router

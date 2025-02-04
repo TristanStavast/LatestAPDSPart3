@@ -52,6 +52,17 @@ app.use(cors(corsOptions));
 app.use(express.json())
 app.set('trust proxy', true)
 
+const mongoose = require('mongoose');
+
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => console.error('MongoDB connection error:', err));
+
 
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -104,33 +115,37 @@ app.get('/api/csrf-token', (req, res) => {
     res.json({ csrfToken: req.csrfToken() })
 })
 
+
+const User = require('./models/User'); // Import the User model
+
 // User Login Route
 app.post('/api/login', bruteForce.prevent, async (req, res) => {
     const { accountNumber, password } = req.body;
-    
+
     if (!accountNumber || !password) {
         return res.status(400).json({ message: 'Account number and password are required.' });
     }
 
-    // Find the user in the "database"
-    const user = users.find(user => user.accountNumber === accountNumber);
-
-    if (!user) {
-        console.log("user not found!!!!!")
-        return res.status(400).json({ message: 'Account not found' });
-    }
-
     try {
-        // Compare the entered password with the hashed password
+        // Find user in MongoDB
+        const user = await User.findOne({ accountNumber });
+
+        if (!user) {
+            console.log("User not found!");
+            return res.status(400).json({ message: 'Account not found' });
+        }
+
+        // Compare entered password with stored hashed password
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
-        
-        const token = jwt.sign({ accountNumber: user.accountNumber }, process.env.SECRET_KEY, { expiresIn: '1h'})
-        res.status(200).json({ message: 'Login Successful', token});
-        console.log('CSRF TOKEN: ', req.csrfToken())
+
+        // Generate JWT token
+        const token = jwt.sign({ accountNumber: user.accountNumber }, process.env.SECRET_KEY, { expiresIn: '1h' });
+
+        res.status(200).json({ message: 'Login Successful', token });
 
     } catch (error) {
         console.error('Error during login:', error);
@@ -193,8 +208,9 @@ app.get('/api/csrf-token', (req, res) => {
 });
 
 app.post('/api/logout', (req, res) => {
-    res.clearCookie('XSRF-TOKEN');
-    res.status(200).json({ message: 'Logout successful'})
-})
+    res.clearCookie('XSRF-TOKEN');  // Clears CSRF token
+    res.json({ message: 'Logged out successfully' });
+});
+
 
 

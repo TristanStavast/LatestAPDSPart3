@@ -2,6 +2,7 @@
   "dependencies": {
     "axios": "^1.7.9",
     "cookie-parser": "^1.4.7",
-    "csurf": "^1.11.0"
+    "csurf": "^1.11.0",
+    "mongoose": "^8.9.7"
   }
 }
