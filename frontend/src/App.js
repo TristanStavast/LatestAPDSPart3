@@ -23,7 +23,6 @@ function App() {
     <Router>
       <div className='App'>
         <Routes>
-          {/* <Route path='/register' element={<RegistrationPage/>}/> */}
           <Route path='/login' element={<LoginPage csrfToken={csrfToken} />}/>
           <Route path="/home" element={<HomePage />} />
           <Route path='/' element={<Navigate to='/login' replace />} />  {/* Redirect to /register */}

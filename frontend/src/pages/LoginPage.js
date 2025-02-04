@@ -25,6 +25,8 @@ function LoginPage({ csrfToken }) {
                 withCredentials: true
             });
 
+            console.log("Here is the csrf token", csrfToken)
+
             localStorage.setItem('token', response.data.token);
             navigate('/home');  // Redirect to Home Page after login
         } catch (error) {
@@ -62,9 +64,6 @@ function LoginPage({ csrfToken }) {
                     {loading ? 'Logging in...' : 'Login'}
                 </button>
 
-                {/* <p className='redirect-link'>
-                    Don't have an account? <Link to="/register">Register here</Link>
-                </p> */}
             </form>
         </div>
     );

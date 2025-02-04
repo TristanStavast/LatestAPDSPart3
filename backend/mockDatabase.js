@@ -5,7 +5,7 @@ const users = [
     fullName: "John Doe",
     idNumber: "1234567890",
     accountNumber: "10001",
-    password: bcrypt.hashSync("password123", 10),
+    password: bcrypt.hashSync("Password123", 10),
   },
   {
     fullName: "Jane Smith",

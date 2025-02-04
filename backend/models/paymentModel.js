@@ -13,7 +13,8 @@ const paymentSchema = new Schema({
     },
     amount:{
         type: Number,
-        required: true
+        required: true,
+        min: [0.01, 'Amount must be greater than zero!']
     }
 }, {timestamps: true})
 

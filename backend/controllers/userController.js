@@ -3,20 +3,20 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
 const createToken = (_id) => {
-    jwt.sign({_id}, process.env.SECRET_KEY, {expires: '3d'})
+    return jwt.sign({_id}, process.env.SECRET_KEY, {expires: '3d'})
 }
 
-const loginUser = async (requestAnimationFrame, res) => {
-    const {accountNumber, password} = res.body
+const loginUser = async (req, res) => {
+    const {accountNumber, password} = req.body
 
     try {
-        const user = await User.loginUser(accountNumber, password)
+        const user = await User.login(accountNumber, password)
 
         const token = createToken(user._id)
 
         res.cookie('token', token, {
             httpOnly: true,
-            secure: process.env.MODE_ENV === 'produciton',
+            secure: process.env.MODE_ENV === 'production',
             maxAge: 3 * 24 * 60 * 60 * 1000,
             sameSite: 'Lax'
         })
@@ -36,8 +36,8 @@ const logoutUser = async (req, res) => {
         expires: new Date(0)
     })
 
-    res.status(200).json({message: 'Logged out right now brah'})
-    console.log("are you using this????")
+    res.status(200).json({message: 'Logged out successfully'})
+    
 }
 
 
