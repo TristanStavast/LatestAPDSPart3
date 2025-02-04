@@ -13,6 +13,8 @@ const cors = require('cors')
 const https = require('https')
 const fs = require('fs')
 
+const app = express();
+
 const options = {
     key: fs.readFileSync('./keys/privatekey.pem'),
     cert: fs.readFileSync('./keys/certificate.pem')
@@ -27,26 +29,32 @@ const cspDirectives = {
 }
 
 const corsOptions = {
-    origin: 'https://localhost:3000',
+    origin: 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X_CSURF-TOKEN']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X_CSURF-TOKEN'],
+    credentials: true
 }
 
+
 const store = new ExpressBrute.MemoryStore();
-const app = express();
+
 const PORT = 5000;
 
-
-app.use(bodyParser.json());
 app.use(cookieParser());
+app.use(csurf({ cookie: {
+    httpOnly: false,
+    secure: process.env.MODE_ENV === 'production',
+    sameSite: 'none'
+} }));
+app.use(bodyParser.json());
 app.use(helmet.contentSecurityPolicy({ directives: cspDirectives }))
-app.use(csurf({ cookie: true }));
 app.use(cors(corsOptions));
+app.use(express.json())
 app.set('trust proxy', true)
 
 
 const loginLimiter = rateLimit({
-    windowMs: 5 * 1000,
+    windowMs: 15 * 60 * 1000,
     max: 5,
     message: 'Too many login attempts from this IP, please try again later.',
     headers: true
@@ -56,7 +64,7 @@ app.use('/api/login', loginLimiter);
 
 const bruteForce = new ExpressBrute(store, {
     freeRetries: 10,
-    minWait: 5000,
+    minWait: 1000,
     maxWait: 5000,
     failCallback: function(req, res, next) {
         console.log('Brute force failed: ', req.ip)
@@ -64,16 +72,15 @@ const bruteForce = new ExpressBrute(store, {
     }
 });
 
+app.use((req, res, next) => {
+    res.cookie('XSRF-TOKEN', req.csrfToken())
+    next();
+})
 
 if(process.env.MODE_ENV !== 'development') {
     app.use(bruteForce.prevent)
 }
 
-
-app.use((req, res, next) => {
-    res.cookie('XSRF-TOKEN', req.csrfToken());
-    next();
-});
 
 app.use((req, res, next) => {
     if (req.protocol === 'http') {
@@ -82,8 +89,6 @@ app.use((req, res, next) => {
         next();
     }
 })
-
-app.use(csurf({ cookie: true}));
 
 let payments = [];
 let confirmedPaymentsCount = 0
@@ -100,8 +105,7 @@ app.get('/api/csrf-token', (req, res) => {
 // User Login Route
 app.post('/api/login', bruteForce.prevent, async (req, res) => {
     const { accountNumber, password } = req.body;
-    //console.log("Users array", users)
-
+    
     if (!accountNumber || !password) {
         return res.status(400).json({ message: 'Account number and password are required.' });
     }
@@ -121,8 +125,11 @@ app.post('/api/login', bruteForce.prevent, async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
-        // Send back a success response (you can later add a JWT token here)
-        res.status(200).json({ message: 'Login successful', token: 'some-jwt-token' });
+        
+        const token = jwt.sign({ accountNumber: user.accountNumber }, process.env.SECRET_KEY, { expiresIn: '1h'})
+        res.status(200).json({ message: 'Login Successful', token});
+        console.log('CSRF TOKEN: ', csrfToken)
+
     } catch (error) {
         console.error('Error during login:', error);
         res.status(500).json({ message: 'Server error. Please try again.' });
@@ -179,11 +186,8 @@ app.get('/api/payments', (req, res) => {
     res.status(200).json({payments})
 });
 
-app.get('/api/csrf-token', (req, res) => {
-    res.json({ csrfToken: req.csrfToken() });
-});
-
-// Start the server
-// app.listen(PORT, () => {
-//     console.log(`Server running on http://localhost:${PORT}`);
+// app.get('/api/csrf-token', (req, res) => {
+//     res.json({ csrfToken: req.csrfToken() });
 // });
+
+

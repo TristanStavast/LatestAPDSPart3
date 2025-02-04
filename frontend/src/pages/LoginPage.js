@@ -13,6 +13,7 @@ function LoginPage() {
 
     useEffect(() => {
         axios.get('/api/csrf-token', { withCredentials: true }).then(response => {
+            console.log('CSRF Token receives: ', response.data.csrfToken)
             setCsrfToken(response.data.csrfToken)
         })
         .catch(err => {
@@ -28,6 +29,8 @@ function LoginPage() {
         e.preventDefault();
         setLoading(true);
         setError(null);
+
+        console.log('Sending csrf token: ', csrfToken)
 
         try {
             const response = await axios.post('/api/login', credentials, {
@@ -49,6 +52,7 @@ function LoginPage() {
 
     return (
         <div className="auth-container">
+            <h1>International Payments Portal</h1>
             <form onSubmit={handleSubmit} className="auth-form">
                 <h2>Login</h2>
                 
