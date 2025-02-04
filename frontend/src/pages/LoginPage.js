@@ -1,14 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Auth.css';
 
 
-function LoginPage({ csrfToken }) {
+function LoginPage() {
     const navigate = useNavigate();
     const [credentials, setCredentials] = useState({ accountNumber: '', password: '' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [csrfToken, setCsrfToken] = useState('');
+
+    useEffect(() => {
+        axios.get('/api/csrf-token', { withCredentials: true }).then(response => {
+            setCsrfToken(response.data.csrfToken)
+        })
+        .catch(err => {
+            console.error('Failed to get csrf: ', err)
+        })
+    }, [])
 
     const handleChange = (e) => {
         setCredentials({ ...credentials, [e.target.name]: e.target.value });

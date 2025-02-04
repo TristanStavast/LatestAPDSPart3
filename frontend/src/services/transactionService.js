@@ -1,7 +1,8 @@
 import axios from 'axios';
 
+
 // Define the API base URL for your backend
-const API_URL = 'TO BE CHANGED';                //NB*************************************
+const API_URL = 'https://localhost:3000';                
 
 // Initiate payment
 export const initiatePayment = async (paymentData, csrfToken) => {
