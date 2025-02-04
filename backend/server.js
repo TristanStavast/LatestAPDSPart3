@@ -29,7 +29,7 @@ const cspDirectives = {
 }
 
 const corsOptions = {
-    origin: 'http://localhost:3000',
+    origin: 'https://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X_CSURF-TOKEN'],
     credentials: true
