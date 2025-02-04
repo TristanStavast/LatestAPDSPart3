@@ -105,6 +105,10 @@ function HomePage() {
     const handleLogout = () => {
         localStorage.removeItem('token');
         navigate('/login');
+
+        axios.get('/api/csrf-token').then(response => {
+            axios.defaults.headers.common['X-CSRF-Token'] = response.data.csrfToken
+        })
     };
 
     return (

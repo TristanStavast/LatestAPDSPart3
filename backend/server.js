@@ -31,7 +31,7 @@ const cspDirectives = {
 const corsOptions = {
     origin: 'https://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X_CSURF-TOKEN'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSURF-TOKEN'],
     credentials: true
 }
 
@@ -42,12 +42,12 @@ const PORT = 5000;
 
 app.use(cookieParser());
 app.use(csurf({ cookie: {
-    httpOnly: false,
+    httpOnly: true,
     secure: process.env.MODE_ENV === 'production',
     sameSite: 'none'
 } }));
 app.use(bodyParser.json());
-app.use(helmet.contentSecurityPolicy({ directives: cspDirectives }))
+app.use(helmet())
 app.use(cors(corsOptions));
 app.use(express.json())
 app.set('trust proxy', true)
@@ -81,14 +81,16 @@ if(process.env.MODE_ENV !== 'development') {
     app.use(bruteForce.prevent)
 }
 
-
-app.use((req, res, next) => {
-    if (req.protocol === 'http') {
-        res.redirect(301, 'https://' + req.headers.host + req.url)
-    } else {
-        next();
-    }
-})
+if(process.env.MODE_ENV === 'production') {
+    app.use((req, res, next) => {
+        if(req.protocol === 'http') {
+            res.redirect(301, 'https://' + req.headers.host + req.url)
+        } else {
+            next()
+        }
+        
+    })
+}
 
 let payments = [];
 let confirmedPaymentsCount = 0
@@ -128,7 +130,7 @@ app.post('/api/login', bruteForce.prevent, async (req, res) => {
         
         const token = jwt.sign({ accountNumber: user.accountNumber }, process.env.SECRET_KEY, { expiresIn: '1h'})
         res.status(200).json({ message: 'Login Successful', token});
-        console.log('CSRF TOKEN: ', csrfToken)
+        console.log('CSRF TOKEN: ', req.csrfToken())
 
     } catch (error) {
         console.error('Error during login:', error);
@@ -186,8 +188,13 @@ app.get('/api/payments', (req, res) => {
     res.status(200).json({payments})
 });
 
-// app.get('/api/csrf-token', (req, res) => {
-//     res.json({ csrfToken: req.csrfToken() });
-// });
+app.get('/api/csrf-token', (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+});
+
+app.post('/api/logout', (req, res) => {
+    res.clearCookie('XSRF-TOKEN');
+    res.status(200).json({ message: 'Logout successful'})
+})
 
 
