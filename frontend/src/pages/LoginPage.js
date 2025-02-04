@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Auth.css';
-import { Link } from 'react-router-dom';
+
 
 function LoginPage({ csrfToken }) {
     const navigate = useNavigate();
@@ -25,7 +25,7 @@ function LoginPage({ csrfToken }) {
                 withCredentials: true
             });
 
-            console.log("Here is the csrf token", csrfToken)
+            console.log("Login Successful")
 
             localStorage.setItem('token', response.data.token);
             navigate('/home');  // Redirect to Home Page after login

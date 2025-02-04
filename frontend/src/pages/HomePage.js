@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/Auth.css';
+import { initiatePayment } from '../services/transactionService';
+import { getCsrfToken } from '../services/authService';
 
 function HomePage() {
     const navigate = useNavigate();
@@ -12,6 +14,7 @@ function HomePage() {
     const [newTransaction, setNewTransaction] = useState({ name: '', description: '', amount: '' });
     const [confirmedPaymentsCount, setConfirmedPaymentsCount] = useState(0);
     const [totalConfirmedAmount, setTotalConfirmedAmount] = useState(0);
+    const [csrfToken, setCsrfToken] = useState('');
 
     useEffect(() => {
         const token = localStorage.getItem('token');
