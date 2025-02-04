@@ -1,24 +1,25 @@
 # APDSPart3
 
-##International Payments Portal
-The international payments portal allows pre-determined users to log in to their existing accounts. They are then able to do the followig;
-###Features
+## International Payments Portal
+The International Payments Portal allows pre-determined users to log in to their existing accounts. Once logged in, they can perform the following actions:
 
-- Log in with static existing accounts.
-- Add a title, description, and amount for each transaction.
-- Log out securely.
-- View all transactions and the total amount of transactions.
+### Features
+Log in with static existing accounts.
+Add a title, description, and amount for each transaction.
+Log out securely.
+View all transactions and the total amount of transactions.
 
-###How to Run
-Open two terminal windows in Visual Studio code
+### How to Clone the Repository
+To get started with the project, clone the repository from GitHub using the following command:
+git clone https://github.com/TristanStavast/LatestAPDSPart3.git
 
-Navigate to the respective directories:
-Run the respective commands below in seperate terminals
-- cd backend
-- cd frontend
+### How to Run
+Open two terminal windows in Visual Studio Code and navigate to the respective directories:
+- Backend Setup:
+-- cd backend
+-- npm start
+- Frontend Setup:
+-- cd frontend
+-- npm start
 
-Start both servers by running the following commands:
-- npm start in the frontend terminal.
-- npm start in the backend terminal.
-
-Your application should now be running successfully and are able to use the application as intended.
+Once both servers are running, you should be able to use the application as intended.
