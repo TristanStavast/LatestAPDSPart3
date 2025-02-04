@@ -9,6 +9,21 @@ const ExpressBrute = require('express-brute');
 const csurf = require('csurf');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken')
+const cors = require('cors')
+
+const cspDirectives = {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'", "'unsafe-inline'", 'https://trusted-cdn.com'],
+    styleSrc: ["'self'", 'https://trusted-styles.com'],
+    imgSrc: ["'self'", 'data:', 'https://trusted-images.com'],
+    connectSrc: ["'self'", 'https://api.yourdomain.com']
+}
+
+const corsOptions = {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X_CSURF-TOKEN']
+}
 
 const store = new ExpressBrute.MemoryStore();
 const app = express();
@@ -16,8 +31,9 @@ const PORT = 5000;
 
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(helmet());
+app.use(helmet.contentSecurityPolicy({ directives: cspDirectives }))
 app.use(csurf({ cookie: true }));
+app.use(cors(corsOptions));
 
 const loginLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
